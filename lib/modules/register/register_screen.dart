@@ -2,27 +2,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_app/layouts/home_layout.dart';
-import 'package:social_app/modules/login/cubit/states.dart';
-import 'package:social_app/modules/register/register_screen.dart';
+import 'package:social_app/modules/register/cubit/cubit.dart';
+import 'package:social_app/modules/register/cubit/states.dart';
+import 'package:social_app/shared/components/components.dart';
 
-import '../../shared/components/components.dart';
-import '../../shared/network/local/cache_helper.dart';
-import 'cubit/cubit.dart';
+class RegisterScreen extends StatelessWidget {
+  RegisterScreen({Key? key}) : super(key: key);
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({Key? key}) : super(key: key);
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SocialLoginCubit(),
-      child: BlocConsumer<SocialLoginCubit,SocialLoginStates>(
+      create: (context) => SocialRegisterCubit(),
+      child: BlocConsumer<SocialRegisterCubit, SocialRegisterStates>(
           builder: (context, state) {
-            var cubit = SocialLoginCubit.get(context);
+            var cubit = SocialRegisterCubit.get(context);
             return Scaffold(
+              appBar: AppBar(
+                title: const Text(
+                  'Register',
+                ),
+              ),
               body: Center(
                 child: SingleChildScrollView(
                   child: Padding(
@@ -41,17 +46,45 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(
-                            height: 30.0,
+                            height: 40.0,
                           ),
                           const Text(
-                            'Login to communicate',
+                            'Register now and discover app',
                             style: TextStyle(
                               fontSize: 24.0,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
                           const SizedBox(
-                            height: 30.0,
+                            height: 40.0,
+                          ),
+                          TextFormField(
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'username must not be empty';
+                              }
+
+                              return null;
+                            },
+                            controller: usernameController,
+                            keyboardType: TextInputType.name,
+                            decoration: InputDecoration(
+                              isDense: false,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  25.0,
+                                ),
+                              ),
+                              label: const Text(
+                                'username',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20.0,
                           ),
                           TextFormField(
                             validator: (value) {
@@ -79,7 +112,7 @@ class LoginScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(
-                            height: 30.0,
+                            height: 20.0,
                           ),
                           TextFormField(
                             validator: (value) {
@@ -107,14 +140,44 @@ class LoginScreen extends StatelessWidget {
                                 onPressed: () {
                                   cubit.changePasswordVisibility();
                                 },
-                                icon: Icon(cubit.suffix),
+                                icon: Icon(
+                                  cubit.suffix,
+                                ),
                               ),
                             ),
                             obscureText: cubit.isPassword,
                             keyboardType: TextInputType.visiblePassword,
                           ),
                           const SizedBox(
-                            height: 30.0,
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'phone is too short';
+                              }
+
+                              return null;
+                            },
+                            controller: phoneController,
+                            decoration: InputDecoration(
+                              isDense: false,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  25.0,
+                                ),
+                              ),
+                              label: const Text(
+                                'phone',
+                              ),
+                            ),
+                            keyboardType: TextInputType.phone,
+                          ),
+                          const SizedBox(
+                            height: 40.0,
                           ),
                           Container(
                             height: 42.0,
@@ -123,51 +186,29 @@ class LoginScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.teal,
                               borderRadius: BorderRadius.circular(
-                                25.0,
+                                35.0,
                               ),
                             ),
                             child: MaterialButton(
                               height: 42.0,
                               onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  cubit.userLogin(
-                                      email: emailController.text,
-                                      password: passwordController.text);
-                                }
+                                cubit.userRegister(
+                                    name: usernameController.text,
+                                    email: emailController.text,
+                                    password: passwordController.text,
+                                    phone: phoneController.text);
                               },
-                              child: state is SocialLoginLoadingState
+                              child: state is SocialRegisterLoadingState
                                   ? const CupertinoActivityIndicator(
                                       color: Colors.white,
                                     )
                                   : const Text(
-                                      'Login',
+                                      'Register',
                                       style: TextStyle(
                                         color: Colors.white,
                                       ),
                                     ),
                             ),
-                          ),
-                          const SizedBox(
-                            height: 30.0,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Don\'t have an account?',
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  navigateTo(
-                                    context,
-                                    RegisterScreen(),
-                                  );
-                                },
-                                child: const Text(
-                                  'Register',
-                                ),
-                              ),
-                            ],
                           ),
                         ],
                       ),
@@ -177,22 +218,12 @@ class LoginScreen extends StatelessWidget {
               ),
             );
           },
-          listener: (context, state) {
-            if (state is SocialLoginErrorState) {
+          listener: (ctx, state) {
+            if(state is SocialCreateUserErrorState){
               showToast(state.error, Colors.red);
             }
-            if(state is SocialLoginSuccessState)
-            {
-              CacheHelper.putData(
-                key: 'uId',
-                value: state.uId,
-              ).then((value)
-              {
-                navigateAndFinish(
-                  context,
-                  const HomeLayout(),
-                );
-              });
+            if(state is SocialRegisterSuccessState){
+              navigateAndFinish(context, const HomeLayout());
             }
           }),
     );

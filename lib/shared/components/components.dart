@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:social_app/shared/styles/color.dart';
+
+import '../styles/icon_broken.dart';
 
 void navigateTo(context, widget) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
@@ -54,6 +58,7 @@ Widget defaultFormField({
 
 class TextFieldContainer extends StatelessWidget {
   final Widget child;
+
   const TextFieldContainer({
     Key? key,
     required this.child,
@@ -112,6 +117,29 @@ Widget defaultTextButton({
         text.toUpperCase(),
       ),
     );
+
+class DefaultAppBar extends StatelessWidget with PreferredSizeWidget {
+  final String? title;
+  final List<Widget>? actions;
+
+  const DefaultAppBar({Key? key, this.title, this.actions}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(IconBroken.Arrow___Left_2)),
+      title: title != null ? Text(title!) : null,
+      actions: actions,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
 
 class RoundedButton extends StatelessWidget {
   final String text;
